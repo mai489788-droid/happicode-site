@@ -502,6 +502,7 @@ function initAdminDashboard() {
   };
 
   renderAdminDashboard();
+  renderUsersTable();
 
   sidebarLinks.forEach(function (link) {
     link.addEventListener('click', function (event) {
@@ -658,6 +659,37 @@ function renderAdminDashboard() {
       '</td>';
 
     tableBody.appendChild(row);
+  });
+}
+
+function renderUsersTable() {
+  var usersTableBody = document.getElementById('usersTableBody');
+  if (!usersTableBody) {
+    return;
+  }
+
+  var users = getUsers();
+  usersTableBody.innerHTML = '';
+
+  if (users.length === 0) {
+    var emptyRow = document.createElement('tr');
+    emptyRow.innerHTML = '<td colspan="3" class="text-center empty-users-row">Chưa có thành viên nào đăng ký</td>';
+    usersTableBody.appendChild(emptyRow);
+    return;
+  }
+
+  users.forEach(function (user) {
+    var row = document.createElement('tr');
+    row.innerHTML =
+      '<td data-label="Họ và tên">' +
+        '<div class="client-cell">' +
+          '<div class="client-avatar">' + getInitials(user.name) + '</div>' +
+          '<span>' + user.name + '</span>' +
+        '</div>' +
+      '</td>' +
+      '<td data-label="Email">' + user.email + '</td>' +
+      '<td data-label="Trạng thái"><span class="status-badge status-completed">Hoạt động</span></td>';
+    usersTableBody.appendChild(row);
   });
 }
 
