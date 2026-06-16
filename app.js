@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-  initEmailJs();
   initNavbarScroll();
   initSmoothScroll();
   initNavHighlight();
@@ -35,14 +34,12 @@ var MAX_LOGIN_FAILURES = 5;
 var ADMIN_USERNAME = 'admin';
 var ADMIN_PASSWORD = 'admin123';
 
-function isUserLoggedIn() {
-  return getCurrentUser() !== null;
+if (window.emailjs) {
+  window.emailjs.init('ey1eUwxwrOnSh7CZN');
 }
 
-function initEmailJs() {
-  if (window.emailjs) {
-    window.emailjs.init(EMAILJS_PUBLIC_KEY);
-  }
+function isUserLoggedIn() {
+  return getCurrentUser() !== null;
 }
 
 function getUsers() {
@@ -1207,7 +1204,7 @@ function processPurchase(productInfo) {
   return true;
 }
 
-function sendPurchaseEmailNotification(productInfo) {
+function sendPurchaseEmailNotification(productName, productPrice) {
   if (!window.emailjs) {
     return;
   }
@@ -1220,8 +1217,8 @@ function sendPurchaseEmailNotification(productInfo) {
   window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
     buyer_name: currentUser.name,
     buyer_email: currentUser.email,
-    product_name: productInfo.title,
-    product_price: productInfo.price.toLocaleString('vi-VN') + ' VNĐ'
+    product_name: productName,
+    product_price: productPrice.toLocaleString('vi-VN') + ' VNĐ'
   });
 }
 
@@ -1269,6 +1266,8 @@ function openPurchaseConfirmModal(productInfo) {
   var cancelBtn = document.getElementById('purchaseConfirmCancelBtn');
   var loadingEl = document.getElementById('purchaseConfirmLoading');
   var balance = getCurrentUserBalance();
+  var productName = productInfo.title;
+  var productPrice = productInfo.price;
   var shouldRefreshOnClose = false;
 
   if (!modal || !titleEl || !textEl || !actionsEl || !okBtn || !cancelBtn || !loadingEl) {
@@ -1276,7 +1275,7 @@ function openPurchaseConfirmModal(productInfo) {
   }
 
   titleEl.textContent = 'Xác nhận mua hàng nha! 💕';
-  textEl.textContent = 'Bạn đang chọn "' + productInfo.title + '" với giá ' + formatCurrency(productInfo.price) + '.';
+  textEl.textContent = 'Bạn đang chọn "' + productName + '" với giá ' + formatCurrency(productPrice) + '.';
   actionsEl.style.display = 'flex';
   loadingEl.style.display = 'none';
   okBtn.style.display = 'inline-block';
@@ -1300,7 +1299,7 @@ function openPurchaseConfirmModal(productInfo) {
     return;
   }
 
-  if (balance < productInfo.price) {
+  if (balance < productPrice) {
     titleEl.textContent = 'Ví tiền chưa đủ rồi nè ☁️';
     textEl.textContent = 'Số dư ví không đủ rồi nè! Hãy nạp thêm tiền nhé ☁️';
     okBtn.style.display = 'none';
@@ -1314,7 +1313,7 @@ function openPurchaseConfirmModal(productInfo) {
         loadingEl.style.display = 'none';
         var success = processPurchase(productInfo);
         if (success) {
-          sendPurchaseEmailNotification(productInfo);
+          sendPurchaseEmailNotification(productName, productPrice);
           titleEl.textContent = 'Mua thành công rồi nha! Cảm ơn bạn rất nhiều! 🥰💖';
           textEl.textContent = 'Đơn hàng của bạn đã gửi thành công tới Ban Quản Trị rồi nè ❤️';
           cancelBtn.textContent = 'Đóng';
