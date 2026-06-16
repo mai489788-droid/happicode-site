@@ -114,6 +114,7 @@
                     <th>Giá</th>
                     <th>Ngày mua</th>
                     <th>Trạng thái</th>
+                    <th>Thông tin code</th>
                   </tr>
                 </thead>
                 <tbody id="purchaseHistoryBody"></tbody>
@@ -124,6 +125,17 @@
       </div>
     </div>
   </main>
+
+  <div class="code-info-modal" id="codeInfoModal">
+    <div class="code-info-card">
+      <h2 class="code-info-title">Thông tin code</h2>
+      <p class="code-info-line"><strong>Sản phẩm:</strong> <span id="codeInfoProductName"></span></p>
+      <p class="code-info-line"><strong>Giá:</strong> <span id="codeInfoPrice"></span></p>
+      <p class="code-info-line"><strong>Mô tả:</strong> <span id="codeInfoDescription"></span></p>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-gradient w-100 mb-2" id="codeInfoGithubLink">Xem mã nguồn GitHub</a>
+      <button type="button" class="btn btn-outline-pink w-100" id="codeInfoCloseBtn">Đóng</button>
+    </div>
+  </div>
 
   <footer class="site-footer py-4">
     <div class="container">

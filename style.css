@@ -1495,6 +1495,18 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--shadow-hover);
 }
 
+.product-price {
+  margin: 0.6rem 1.1rem 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--pink-accent);
+  background: var(--pink-pale);
+  border: 2px solid var(--pink-light);
+}
+
 .product-preview {
   height: 180px;
   display: flex;
@@ -1741,6 +1753,46 @@ h1, h2, h3, h4, h5, h6 {
 .purchase-modal.show {
   opacity: 1;
   visibility: visible;
+}
+
+.code-info-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 182, 193, 0.35);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1200;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+}
+
+.code-info-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.code-info-card {
+  width: min(500px, 100%);
+  background: var(--white);
+  border: 2px solid var(--pink-light);
+  border-radius: 24px;
+  box-shadow: var(--shadow-hover);
+  padding: 1.3rem;
+}
+
+.code-info-title {
+  margin-bottom: 1rem;
+  font-weight: 800;
+  color: var(--pink-accent);
+}
+
+.code-info-line {
+  margin-bottom: 0.7rem;
+  color: var(--text-dark);
 }
 
 .purchase-modal-card {

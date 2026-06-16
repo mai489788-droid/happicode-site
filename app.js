@@ -908,6 +908,7 @@ function buildCustomProductCard(product, index) {
   col.setAttribute('data-price', String(product.price));
   col.setAttribute('data-video-url', product.videoUrl);
   col.setAttribute('data-demo-url', product.demoUrl);
+  col.setAttribute('data-github-url', product.githubUrl || product.demoUrl || '');
 
   col.innerHTML =
     '<article class="product-card">' +
@@ -915,6 +916,7 @@ function buildCustomProductCard(product, index) {
         '<i class="bi bi-stars"></i>' +
       '</div>' +
       '<h2 class="product-title">' + product.name + '</h2>' +
+      '<p class="product-price">Giá: ' + formatCurrency(product.price) + '</p>' +
       '<p class="product-desc">' + product.description + '</p>' +
       '<div class="product-btn-group">' +
         '<button type="button" class="btn-product btn-video" data-action="video">Video</button>' +
@@ -946,7 +948,14 @@ function handleProductButtonClick(button) {
   var price = parseInt(card.getAttribute('data-price'), 10);
   var videoUrl = card.getAttribute('data-video-url');
   var demoUrl = card.getAttribute('data-demo-url');
+  var githubUrl = card.getAttribute('data-github-url');
+  var descriptionEl = card.querySelector('.product-desc');
+  var description = '';
   var action = button.getAttribute('data-action');
+
+  if (descriptionEl) {
+    description = descriptionEl.textContent.trim();
+  }
 
   if (action === 'video') {
     if (videoUrl) {
@@ -957,7 +966,12 @@ function handleProductButtonClick(button) {
   }
 
   if (action === 'buy') {
-    var success = processPurchase(title, price);
+    var success = processPurchase({
+      title: title,
+      price: price,
+      githubUrl: githubUrl,
+      description: description
+    });
     if (success) {
       showPurchaseSuccessAlert();
     }
@@ -1015,7 +1029,7 @@ function getRedirectPageName() {
   return 'index';
 }
 
-function processPurchase(title, price) {
+function processPurchase(productInfo) {
   if (!isUserLoggedIn()) {
     localStorage.setItem(STORAGE_REDIRECT, getRedirectPageName());
     alert('Vui lòng đăng nhập để mua sản phẩm!');
@@ -1023,6 +1037,8 @@ function processPurchase(title, price) {
     return false;
   }
 
+  var title = productInfo.title;
+  var price = productInfo.price;
   var userName = getUserName();
   var userEmail = getUserEmail();
   var purchaseId = 'purchase_' + Date.now();
@@ -1034,7 +1050,9 @@ function processPurchase(title, price) {
     title: title,
     price: price,
     date: now,
-    userEmail: userEmail
+    userEmail: userEmail,
+    githubUrl: productInfo.githubUrl || '',
+    description: productInfo.description || ''
   };
 
   var purchases = getPurchases();
@@ -1232,6 +1250,12 @@ function initUserDashboard() {
   var purchaseHistoryBody = document.getElementById('purchaseHistoryBody');
   var passwordForm = document.getElementById('passwordForm');
   var logoutBtn = document.getElementById('userLogoutBtn');
+  var codeInfoModal = document.getElementById('codeInfoModal');
+  var codeInfoCloseBtn = document.getElementById('codeInfoCloseBtn');
+  var codeInfoProductName = document.getElementById('codeInfoProductName');
+  var codeInfoPrice = document.getElementById('codeInfoPrice');
+  var codeInfoDescription = document.getElementById('codeInfoDescription');
+  var codeInfoGithubLink = document.getElementById('codeInfoGithubLink');
 
   if (profileName) {
     profileName.textContent = getUserName();
@@ -1289,7 +1313,7 @@ function initUserDashboard() {
 
     if (purchases.length === 0) {
       var emptyRow = document.createElement('tr');
-      emptyRow.innerHTML = '<td colspan="4" class="text-center empty-history">Chưa có sản phẩm nào được mua.</td>';
+      emptyRow.innerHTML = '<td colspan="5" class="text-center empty-history">Chưa có sản phẩm nào được mua.</td>';
       purchaseHistoryBody.appendChild(emptyRow);
       return;
     }
@@ -1302,8 +1326,66 @@ function initUserDashboard() {
         '<td data-label="Sản phẩm">' + purchase.title + '</td>' +
         '<td data-label="Giá">' + formatCurrency(purchase.price) + '</td>' +
         '<td data-label="Ngày mua">' + formatDate(purchase.date) + '</td>' +
-        '<td data-label="Trạng thái"><span class="status-badge status-completed">Đã mua</span></td>';
+        '<td data-label="Trạng thái"><span class="status-badge status-completed">Đã mua</span></td>' +
+        '<td data-label="Thông tin code"><button type="button" class="btn btn-action btn-action-view code-info-btn" data-title="' + purchase.title + '" data-price="' + purchase.price + '" data-description="' + (purchase.description || '') + '" data-github-url="' + (purchase.githubUrl || '') + '">Xem thông tin</button></td>';
       purchaseHistoryBody.appendChild(row);
+    });
+  }
+
+  if (purchaseHistoryBody) {
+    purchaseHistoryBody.addEventListener('click', function (event) {
+      var infoButton = event.target.closest('.code-info-btn');
+      if (!infoButton) {
+        return;
+      }
+
+      if (codeInfoProductName) {
+        codeInfoProductName.textContent = infoButton.getAttribute('data-title');
+      }
+      if (codeInfoPrice) {
+        codeInfoPrice.textContent = formatCurrency(parseInt(infoButton.getAttribute('data-price'), 10));
+      }
+      if (codeInfoDescription) {
+        if (infoButton.getAttribute('data-description')) {
+          codeInfoDescription.textContent = infoButton.getAttribute('data-description');
+        } else {
+          codeInfoDescription.textContent = 'Chưa có mô tả cho sản phẩm này.';
+        }
+      }
+      if (codeInfoGithubLink) {
+        var githubUrl = infoButton.getAttribute('data-github-url');
+        if (githubUrl) {
+          codeInfoGithubLink.href = githubUrl;
+          codeInfoGithubLink.textContent = 'Xem mã nguồn GitHub';
+          codeInfoGithubLink.style.pointerEvents = 'auto';
+          codeInfoGithubLink.style.opacity = '1';
+        } else {
+          codeInfoGithubLink.href = '#';
+          codeInfoGithubLink.textContent = 'Chưa có link GitHub';
+          codeInfoGithubLink.style.pointerEvents = 'none';
+          codeInfoGithubLink.style.opacity = '0.6';
+        }
+      }
+
+      if (codeInfoModal) {
+        codeInfoModal.classList.add('show');
+      }
+    });
+  }
+
+  if (codeInfoCloseBtn) {
+    codeInfoCloseBtn.addEventListener('click', function () {
+      if (codeInfoModal) {
+        codeInfoModal.classList.remove('show');
+      }
+    });
+  }
+
+  if (codeInfoModal) {
+    codeInfoModal.addEventListener('click', function (event) {
+      if (event.target === codeInfoModal) {
+        codeInfoModal.classList.remove('show');
+      }
     });
   }
 }
