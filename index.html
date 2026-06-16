@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dr.Gifter - Một món quà nhỏ dành riêng cho bạn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="landing-page">
+  <div class="mesh-bg"></div>
+  <div class="grid-overlay"></div>
+  <div class="bg-glow bg-glow-purple"></div>
+  <div class="bg-glow bg-glow-cyan"></div>
+
+  <div class="floating-decor" aria-hidden="true">
+    <i class="bi bi-heart-fill decor-heart decor-heart-1"></i>
+    <i class="bi bi-heart-fill decor-heart decor-heart-2"></i>
+    <i class="bi bi-heart-fill decor-heart decor-heart-3"></i>
+    <i class="bi bi-cloud-fill decor-cloud decor-cloud-1"></i>
+    <i class="bi bi-cloud-fill decor-cloud decor-cloud-2"></i>
+    <i class="bi bi-cloud-haze2-fill decor-cloud decor-cloud-3"></i>
+    <i class="bi bi-star-fill decor-star decor-star-1"></i>
+    <i class="bi bi-star-fill decor-star decor-star-2"></i>
+  </div>
+
+  <nav class="navbar navbar-expand-lg fixed-top glass-nav" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand brand-glow" href="index.html">
+        <i class="bi bi-gift-fill brand-icon"></i>
+        Dr.Gifter
+      </a>
+      <button class="navbar-toggler navbar-toggler-custom" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Mở menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item">
+            <a class="nav-link nav-link-animated active" href="#home" data-nav="home">Trang chủ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-animated" href="services.html">Mẫu Code</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-animated" href="#tutorial" data-nav="tutorial">Hướng dẫn</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-link-animated" href="#about" data-nav="about">Về chúng tôi</a>
+          </li>
+          <li class="nav-item" id="userNavItem" style="display:none">
+            <a class="nav-link user-profile-link" href="user-dashboard.html">
+              <span class="user-nav-avatar"><i class="bi bi-person-heart-fill"></i></span>
+              <span class="user-nav-name" id="userNavName">Tài khoản</span>
+            </a>
+          </li>
+          <li class="nav-item ms-lg-2" id="loginNavItem">
+            <a class="nav-link nav-link-btn" href="login.html">Đăng nhập</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section id="home" class="hero-section d-flex align-items-center">
+    <div class="container position-relative">
+      <div class="welcome-banner bounce-hover">
+        <i class="bi bi-stars"></i>
+        <span class="welcome-text">Chào mừng bạn đến với thế giới quà tặng số dễ thương!</span>
+        <i class="bi bi-stars"></i>
+      </div>
+      <div class="row align-items-center">
+        <div class="col-lg-7">
+          <span class="hero-badge">Dịch vụ kỹ thuật số dễ thương</span>
+          <h1 class="hero-title display-3 fw-bold mb-4">
+            <span class="text-gradient-animated">Dr.Gifter</span> - Một món quà nhỏ dành riêng cho bạn
+          </h1>
+          <p class="hero-description lead mb-4">Chúng mình mang đến phát triển web, quà tặng ý nghĩa và hỗ trợ bài tập tận tâm — tất cả được gói gọn như một món quà nhỏ xinh dành riêng cho bạn.</p>
+          <div class="hero-feature-pills mb-4">
+            <span class="hero-pill bounce-hover"><i class="bi bi-heart-fill"></i> Thiết kế xinh xắn</span>
+            <span class="hero-pill bounce-hover"><i class="bi bi-lightning-fill"></i> Giao hàng nhanh</span>
+            <span class="hero-pill bounce-hover"><i class="bi bi-shield-heart-fill"></i> An toàn &amp; tin cậy</span>
+          </div>
+          <div class="hero-cta-wrap d-flex flex-wrap gap-3">
+            <button type="button" class="btn btn-gradient btn-lg cta-button pulse-glow bounce-hover" id="exploreCodeBtn">Khám phá mẫu code</button>
+            <a href="#tutorial" class="btn btn-outline-cute btn-lg cta-button bounce-hover">Xem hướng dẫn</a>
+          </div>
+        </div>
+        <div class="col-lg-5 d-none d-lg-flex justify-content-center">
+          <div class="hero-visual">
+            <div class="hero-ring hero-ring-1"></div>
+            <div class="hero-ring hero-ring-2"></div>
+            <div class="hero-ring hero-ring-3"></div>
+            <div class="hero-icon-wrap">
+              <i class="bi bi-gift-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gradient-divider"></div>
+
+  <section id="services" class="services-section py-5">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="section-badge">Chúng mình mang đến</span>
+        <h2 class="section-title fw-bold mt-3">Dịch vụ của chúng tôi</h2>
+        <p class="section-subtitle">Mọi thứ bạn cần, được chăm chút từng chút một</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="glass-card service-card h-100 bounce-hover">
+            <div class="service-card-inner text-center p-4 p-lg-5">
+              <div class="service-icon service-icon-purple mb-4">
+                <i class="bi bi-code-slash"></i>
+              </div>
+              <h3 class="service-title h5 fw-bold">Phát triển Web</h3>
+              <p class="service-text">Website và ứng dụng web được thiết kế xinh xắn, hiện đại để biến ý tưởng của bạn thành hiện thực.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="glass-card service-card h-100 bounce-hover">
+            <div class="service-card-inner text-center p-4 p-lg-5">
+              <div class="service-icon service-icon-cyan mb-4">
+                <i class="bi bi-gift"></i>
+              </div>
+              <h3 class="service-title h5 fw-bold">Quà tặng</h3>
+              <p class="service-text">Những món quà được chọn lọc và cá nhân hóa cho mọi dịp, làm mỗi khoảnh khắc trở nên đáng nhớ.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="glass-card service-card h-100 bounce-hover">
+            <div class="service-card-inner text-center p-4 p-lg-5">
+              <div class="service-icon service-icon-mixed mb-4">
+                <i class="bi bi-journal-check"></i>
+              </div>
+              <h3 class="service-title h5 fw-bold">Hỗ trợ bài tập</h3>
+              <p class="service-text">Hướng dẫn và hỗ trợ chuyên nghiệp cho bài tập của bạn, giúp bạn đạt kết quả tốt nhất.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gradient-divider"></div>
+
+  <section id="tutorial" class="tutorial-section py-5">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="section-badge">Hướng dẫn chi tiết</span>
+        <h2 class="section-title fw-bold mt-3">Hướng dẫn sử dụng</h2>
+        <p class="section-subtitle">Làm theo từng bước để bắt đầu với mã nguồn của bạn</p>
+      </div>
+      <div class="tutorial-timeline">
+        <div class="tutorial-step bounce-hover">
+          <div class="tutorial-step-number">1</div>
+          <div class="tutorial-step-card">
+            <h3 class="tutorial-step-title">Cài đặt Visual Studio Code</h3>
+            <p class="tutorial-step-text">Để bắt đầu, bạn cần tải và cài đặt Visual Studio Code (VS Code) trên máy tính của mình. Truy cập trang web chính thức của VS Code tại https://code.visualstudio.com/ và chọn phiên bản phù hợp với hệ điều hành của bạn (Windows, macOS hoặc Linux). Sau khi tải xuống, hãy chạy tệp cài đặt và làm theo hướng dẫn để hoàn tất quá trình cài đặt.</p>
+            <div class="tutorial-step-icon-row">
+              <span class="tutorial-util-icon"><i class="bi bi-pc-display"></i></span>
+              <span class="tutorial-util-icon"><i class="bi bi-download"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="tutorial-step bounce-hover">
+          <div class="tutorial-step-number">2</div>
+          <div class="tutorial-step-card">
+            <h3 class="tutorial-step-title">Cài đặt Extension</h3>
+            <p class="tutorial-step-text">Mở Visual Studio Code và truy cập vào phần Extensions bằng cách nhấp vào biểu tượng Extensions ở thanh bên trái hoặc sử dụng phím tắt Ctrl + Shift + X (Windows/Linux) hoặc Cmd + Shift + X (macOS). Trong thanh tìm kiếm, bạn nhập "Live Server", phiên bản phổ biến nhất được phát triển bởi Ritwick Dey. Khi bạn tìm thấy nó, nhấp vào nút Install để cài đặt nó vào VS Code.</p>
+            <div class="tutorial-step-icon-row">
+              <span class="tutorial-util-icon"><i class="bi bi-puzzle-fill"></i></span>
+              <span class="tutorial-util-icon"><i class="bi bi-lightning-charge-fill"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="tutorial-step bounce-hover">
+          <div class="tutorial-step-number">3</div>
+          <div class="tutorial-step-card">
+            <h3 class="tutorial-step-title">Lấy Source Code</h3>
+            <p class="tutorial-step-text">Bạn truy cập vào mục Code hoặc trang Github tìm kiếm mã nguồn mà bạn muốn để tải về.<br>Sau khi tải về, Source Code thường sẽ nằm ở mục Download của máy bạn. Bạn giải nén và mở thư mục dự án trong Visual Studio Code.</p>
+            <p class="tutorial-step-note">Lưu ý: Chỉ làm bước này nếu như bạn chưa có Source Code. Nếu bạn đã được mình gửi Source Code thì chỉ cần giải nén và mở ra để sử dụng.</p>
+            <div class="tutorial-step-icon-row">
+              <span class="tutorial-util-icon"><i class="bi bi-github"></i></span>
+              <span class="tutorial-util-icon"><i class="bi bi-file-earmark-zip-fill"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="tutorial-step bounce-hover">
+          <div class="tutorial-step-number">4</div>
+          <div class="tutorial-step-card">
+            <h3 class="tutorial-step-title">Mở Source Code</h3>
+            <p class="tutorial-step-text">Sau khi giải nén, bạn sẽ được một thư mục chứa các tệp như "index.html", "style.css", "script.js",...và nhiều file khác tuỳ theo Source Code.<br>Bạn mở Visual Studio Code, chọn "File" -&gt; "Open Folder", bạn đi tới mục lưu Source Code đã giải nén, chọn thư mục đó và chọn "Select Folder".</p>
+            <div class="tutorial-step-icon-row">
+              <span class="tutorial-util-icon"><i class="bi bi-folder2-open"></i></span>
+              <span class="tutorial-util-icon"><i class="bi bi-file-code-fill"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="tutorial-step bounce-hover">
+          <div class="tutorial-step-number">5</div>
+          <div class="tutorial-step-card">
+            <h3 class="tutorial-step-title">Chạy Code trong VSC</h3>
+            <p class="tutorial-step-text">Sau khi mở được Source Code, bạn sẽ thấy được cấu trúc thư mục như hình ảnh.<br>Bạn có thể chỉnh sửa bất kỳ thông tin như lời nhắn, hình ảnh, lời chúc...<br>Để chạy chương trình, bạn vào index.html và có 2 cách khởi chạy:<br>1. Chọn vào biểu tượng bên góc phải dưới màn hình.<br>2. Chuột phải chọn vào "Open with Live Server".</p>
+            <div class="tutorial-preview-grid">
+              <div class="tutorial-preview-box">
+                <i class="bi bi-diagram-3-fill"></i>
+                <span>Cấu trúc thư mục</span>
+              </div>
+              <div class="tutorial-preview-box">
+                <i class="bi bi-play-circle-fill"></i>
+                <span>Live Server</span>
+              </div>
+              <div class="tutorial-preview-box">
+                <i class="bi bi-mouse-fill"></i>
+                <span>Chuột phải</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gradient-divider"></div>
+
+  <section id="about" class="stats-section py-5">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="section-badge">Thành tựu của chúng tôi</span>
+        <h2 class="section-title fw-bold mt-3">Những con số ấn tượng</h2>
+      </div>
+      <div class="row g-4">
+        <div class="col-6 col-lg-3">
+          <div class="stat-glass text-center bounce-hover">
+            <h3 class="stat-number glow-text" data-count="100">100+</h3>
+            <p class="stat-label mb-0">Dự án hoàn thành</p>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-glass text-center bounce-hover">
+            <h3 class="stat-number glow-text" data-count="50">50+</h3>
+            <p class="stat-label mb-0">Khách hàng hài lòng</p>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-glass text-center bounce-hover">
+            <h3 class="stat-number glow-text">24/7</h3>
+            <p class="stat-label mb-0">Hỗ trợ liên tục</p>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-glass text-center bounce-hover">
+            <h3 class="stat-number glow-text" data-count="5">5+</h3>
+            <p class="stat-label mb-0">Năm kinh nghiệm</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer py-4">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+          <div class="social-links">
+            <a href="#" class="social-link bounce-hover" aria-label="Tiktok"><i class="bi bi-tiktok"></i></a>
+            <a href="#" class="social-link bounce-hover" aria-label="Github"><i class="bi bi-github"></i></a>
+            <a href="#" class="social-link bounce-hover" aria-label="Fanpage"><i class="bi bi-facebook"></i></a>
+          </div>
+        </div>
+        <div class="col-md-6 text-center text-md-end">
+          <p class="copyright mb-0">&copy; 2026 Dr.Gifter. Bảo lưu mọi quyền.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

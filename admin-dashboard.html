@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng điều khiển - Dr.Gifter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-dashboard-page">
+  <div class="admin-wrapper d-flex">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-brand">
+          <i class="bi bi-gift-fill"></i> Dr.Gifter
+        </a>
+        <p class="sidebar-subtitle">Bảng quản trị</p>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="sidebar-link active" data-section="dashboard">
+          <span class="sidebar-link-pill">
+            <i class="bi bi-speedometer2"></i>
+            <span>Bảng điều khiển</span>
+          </span>
+        </a>
+        <a href="#users" class="sidebar-link" data-section="users">
+          <span class="sidebar-link-pill">
+            <i class="bi bi-people"></i>
+            <span>Quản lý người dùng</span>
+          </span>
+        </a>
+        <a href="#requests" class="sidebar-link" data-section="requests">
+          <span class="sidebar-link-pill">
+            <i class="bi bi-inbox"></i>
+            <span>Yêu cầu dịch vụ</span>
+          </span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="admin-login.html" class="sidebar-link logout-link">
+          <span class="sidebar-link-pill">
+            <i class="bi bi-box-arrow-left"></i>
+            <span>Đăng xuất</span>
+          </span>
+        </a>
+      </div>
+    </aside>
+
+    <div class="admin-main flex-grow-1">
+      <header class="admin-topbar d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn sidebar-toggle-btn d-lg-none" id="sidebarToggle" type="button">
+            <i class="bi bi-list"></i>
+          </button>
+          <h1 class="admin-page-title h5 mb-0 fw-bold" id="pageTitle">Bảng điều khiển</h1>
+        </div>
+        <div class="admin-profile d-flex align-items-center gap-3">
+          <span class="admin-status d-none d-md-inline">Đang hoạt động</span>
+          <div class="admin-avatar">
+            <i class="bi bi-person-fill"></i>
+          </div>
+          <span class="admin-name d-none d-sm-inline">Quản trị viên</span>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <section id="dashboardSection" class="content-section active">
+          <div class="row g-3 g-xl-4 mb-4">
+            <div class="col-6 col-xl-3">
+              <div class="metric-glass metric-purple">
+                <div class="metric-icon"><i class="bi bi-people-fill"></i></div>
+                <p class="metric-label">Tổng người dùng</p>
+                <h2 class="metric-value">128</h2>
+              </div>
+            </div>
+            <div class="col-6 col-xl-3">
+              <div class="metric-glass metric-cyan">
+                <div class="metric-icon"><i class="bi bi-bag-check-fill"></i></div>
+                <p class="metric-label">Tổng đơn hàng</p>
+                <h2 class="metric-value" id="totalOrdersMetric">89</h2>
+              </div>
+            </div>
+            <div class="col-6 col-xl-3">
+              <div class="metric-glass metric-mixed">
+                <div class="metric-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                <p class="metric-label">Người dùng hoạt động</p>
+                <h2 class="metric-value" id="activeUsersMetric">24</h2>
+              </div>
+            </div>
+            <div class="col-6 col-xl-3">
+              <div class="metric-glass metric-green">
+                <div class="metric-icon"><i class="bi bi-currency-dollar"></i></div>
+                <p class="metric-label">Doanh thu</p>
+                <h2 class="metric-value" id="revenueMetric">12,5tr</h2>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-glass">
+            <div class="table-glass-header">
+              <h2 class="table-glass-title h6 fw-bold mb-0">Yêu cầu khách hàng gần đây</h2>
+              <span class="admin-status">Trực tiếp</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table admin-table mb-0" id="requestsTable">
+                <thead>
+                  <tr>
+                    <th>Tên khách hàng</th>
+                    <th>Loại dịch vụ</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="requestsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="usersSection" class="content-section">
+          <div class="panel-glass">
+            <div class="panel-glass-body">
+              <h2 class="panel-title h5 fw-bold mb-3">Quản lý người dùng</h2>
+              <p class="panel-text mb-0">Quản lý người dùng đã đăng ký, vai trò và trạng thái tài khoản tại đây nhé.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="requestsSection" class="content-section">
+          <div class="panel-glass">
+            <div class="panel-glass-body">
+              <h2 class="panel-title h5 fw-bold mb-3">Yêu cầu dịch vụ</h2>
+              <p class="panel-text mb-0">Xem và quản lý tất cả yêu cầu dịch vụ từ khách hàng.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
