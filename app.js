@@ -28,9 +28,9 @@ var STORAGE_ADMIN_LOGIN_FAILURES = 'drgifter_admin_login_failures';
 var STORAGE_ADMIN_LOGIN_LOCKED = 'drgifter_admin_login_locked';
 var STORAGE_CUSTOM_PRODUCTS = 'customProducts';
 var STORAGE_DEPOSIT_REQUESTS = 'depositRequests';
-var EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
-var EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
-var EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+var EMAILJS_PUBLIC_KEY = 'ey1eUwxwrOnSh7CZN';
+var EMAILJS_SERVICE_ID = 'service_qkmxie9';
+var EMAILJS_TEMPLATE_ID = 'template_f9x48u1';
 var MAX_LOGIN_FAILURES = 5;
 var ADMIN_USERNAME = 'admin';
 var ADMIN_PASSWORD = 'admin123';
@@ -1212,13 +1212,16 @@ function sendPurchaseEmailNotification(productInfo) {
     return;
   }
 
-  var now = new Date();
+  var currentUser = getCurrentUser();
+  if (!currentUser) {
+    return;
+  }
+
   window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-    buyer_name: getUserName(),
-    buyer_email: getUserEmail(),
+    buyer_name: currentUser.name,
+    buyer_email: currentUser.email,
     product_name: productInfo.title,
-    product_price: formatCurrency(productInfo.price),
-    transaction_time: now.toLocaleString('vi-VN')
+    product_price: productInfo.price.toLocaleString('vi-VN') + ' VNĐ'
   });
 }
 
