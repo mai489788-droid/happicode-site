@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initRegisterForm();
   initAdminLoginForm();
   initAdminDashboard();
+  initHomePage();
   initServicesPage();
   initUserDashboard();
 });
@@ -239,31 +240,46 @@ function formatDate(dateString) {
 }
 
 function initNavAuthState() {
-  var userNavItem = document.getElementById('userNavItem');
-  var loginNavItem = document.getElementById('loginNavItem');
-  var userNavName = document.getElementById('userNavName');
+  var navLoginItem = document.getElementById('navLoginItem');
+  var navRegisterItem = document.getElementById('navRegisterItem');
+  var navLoggedInItem = document.getElementById('navLoggedInItem');
+  var navGreetingText = document.getElementById('navGreetingText');
+  var navLogoutBtn = document.getElementById('navLogoutBtn');
 
-  if (!userNavItem && !loginNavItem) {
+  if (!navLoginItem && !navLoggedInItem) {
     return;
   }
 
   if (isUserLoggedIn()) {
-    if (userNavItem) {
-      userNavItem.style.display = 'block';
+    if (navLoginItem) {
+      navLoginItem.style.display = 'none';
     }
-    if (loginNavItem) {
-      loginNavItem.style.display = 'none';
+    if (navRegisterItem) {
+      navRegisterItem.style.display = 'none';
     }
-    if (userNavName) {
-      userNavName.textContent = getUserName();
+    if (navLoggedInItem) {
+      navLoggedInItem.style.display = 'block';
+    }
+    if (navGreetingText) {
+      navGreetingText.textContent = 'Xin chào, ' + getUserName() + '! 💕';
     }
   } else {
-    if (userNavItem) {
-      userNavItem.style.display = 'none';
+    if (navLoginItem) {
+      navLoginItem.style.display = 'block';
     }
-    if (loginNavItem) {
-      loginNavItem.style.display = 'block';
+    if (navRegisterItem) {
+      navRegisterItem.style.display = 'block';
     }
+    if (navLoggedInItem) {
+      navLoggedInItem.style.display = 'none';
+    }
+  }
+
+  if (navLogoutBtn) {
+    navLogoutBtn.addEventListener('click', function () {
+      clearCurrentUser();
+      window.location.reload();
+    });
   }
 }
 
@@ -280,6 +296,50 @@ function initExploreCodeGate() {
       localStorage.setItem(STORAGE_REDIRECT, 'services');
       window.location.href = 'login.html';
     }
+  });
+}
+
+function initHomePage() {
+  var featuredGrid = document.getElementById('featuredProductGrid');
+  if (!featuredGrid) {
+    return;
+  }
+
+  renderFeaturedProducts(featuredGrid);
+
+  featuredGrid.addEventListener('click', function (event) {
+    var button = event.target.closest('.btn-product');
+    if (button) {
+      handleProductButtonClick(button);
+    }
+  });
+}
+
+function renderFeaturedProducts(grid) {
+  var emptyEl = document.getElementById('featuredEmpty');
+  var products = getCustomProducts();
+  var latest = [];
+  var i;
+
+  grid.innerHTML = '';
+
+  if (products.length === 0) {
+    if (emptyEl) {
+      emptyEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (emptyEl) {
+    emptyEl.style.display = 'none';
+  }
+
+  for (i = products.length - 1; i >= 0 && latest.length < 4; i--) {
+    latest.push(products[i]);
+  }
+
+  latest.forEach(function (product, index) {
+    grid.appendChild(buildCustomProductCard(product, index));
   });
 }
 
@@ -595,7 +655,7 @@ function initAdminDashboard() {
       if (action === 'approve' && statusBadge && orderId) {
         statusBadge.textContent = 'Hoàn thành';
         statusBadge.className = 'status-badge status-completed';
-        updateAdminOrderStatus(orderId, 'completed');
+        updateAdminOrderStatus(orderId, 'Hoàn thành');
       }
 
       if (action === 'view') {
@@ -690,13 +750,17 @@ function renderAdminDashboard() {
     var statusClass = 'status-pending';
     var statusText = 'Chờ xử lý';
 
-    if (order.status === 'progress') {
+    if (order.status === 'Đang xử lý' || order.status === 'progress') {
       statusClass = 'status-progress';
       statusText = 'Đang xử lý';
     }
-    if (order.status === 'completed') {
+    if (order.status === 'Hoàn thành' || order.status === 'completed') {
       statusClass = 'status-completed';
       statusText = 'Hoàn thành';
+    }
+    if (order.status === 'Chờ xử lý' || order.status === 'pending') {
+      statusClass = 'status-pending';
+      statusText = 'Chờ xử lý';
     }
 
     var row = document.createElement('tr');
@@ -895,7 +959,7 @@ function handleProductButtonClick(button) {
   if (action === 'buy') {
     var success = processPurchase(title, price);
     if (success) {
-      showPurchaseModal();
+      showPurchaseSuccessAlert();
     }
   }
 
@@ -908,9 +972,53 @@ function handleProductButtonClick(button) {
   }
 }
 
+function addPurchaseToUserAccount(email, purchase, price) {
+  var users = getUsers();
+  var i;
+  var currentUser = getCurrentUser();
+
+  for (i = 0; i < users.length; i++) {
+    if (users[i].email.toLowerCase() === email.toLowerCase()) {
+      if (!users[i].purchases) {
+        users[i].purchases = [];
+      }
+      users[i].purchases.push(purchase);
+      if (!users[i].totalSpending) {
+        users[i].totalSpending = 0;
+      }
+      users[i].totalSpending = users[i].totalSpending + price;
+      break;
+    }
+  }
+
+  saveUsers(users);
+
+  if (currentUser) {
+    if (!currentUser.purchases) {
+      currentUser.purchases = [];
+    }
+    currentUser.purchases.push(purchase);
+    if (!currentUser.totalSpending) {
+      currentUser.totalSpending = 0;
+    }
+    currentUser.totalSpending = currentUser.totalSpending + price;
+    localStorage.setItem(STORAGE_CURRENT_USER, JSON.stringify(currentUser));
+  }
+}
+
+function getRedirectPageName() {
+  var path = window.location.pathname;
+  var page = path.split('/').pop();
+  if (page === 'services.html') {
+    return 'services';
+  }
+  return 'index';
+}
+
 function processPurchase(title, price) {
   if (!isUserLoggedIn()) {
-    localStorage.setItem(STORAGE_REDIRECT, 'services');
+    localStorage.setItem(STORAGE_REDIRECT, getRedirectPageName());
+    alert('Vui lòng đăng nhập để mua sản phẩm!');
     window.location.href = 'login.html';
     return false;
   }
@@ -936,19 +1044,25 @@ function processPurchase(title, price) {
   var newSpending = getTotalSpending() + price;
   setTotalSpending(newSpending);
 
-  var adminOrder = {
+  addPurchaseToUserAccount(userEmail, purchase, price);
+
+  var newOrder = {
     id: orderId,
     clientName: userName,
     serviceType: title,
-    status: 'pending',
+    status: 'Chờ xử lý',
     price: price
   };
 
-  var adminOrders = getAdminOrders();
-  adminOrders.push(adminOrder);
-  saveAdminOrders(adminOrders);
+  var orders = getOrders();
+  orders.push(newOrder);
+  saveOrders(orders);
 
   return true;
+}
+
+function showPurchaseSuccessAlert() {
+  alert('Đặt mua thành công! Yêu cầu của bạn đã được gửi tới Ban Quản Trị.');
 }
 
 function showPurchaseModal() {

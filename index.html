@@ -51,14 +51,18 @@
           <li class="nav-item">
             <a class="nav-link nav-link-animated" href="#about" data-nav="about">Về chúng tôi</a>
           </li>
-          <li class="nav-item" id="userNavItem" style="display:none">
-            <a class="nav-link user-profile-link" href="user-dashboard.html">
-              <span class="user-nav-avatar"><i class="bi bi-person-heart-fill"></i></span>
-              <span class="user-nav-name" id="userNavName">Tài khoản</span>
-            </a>
-          </li>
-          <li class="nav-item ms-lg-2" id="loginNavItem">
+          <li class="nav-item nav-auth-guest ms-lg-2" id="navLoginItem">
             <a class="nav-link nav-link-btn" href="login.html">Đăng nhập</a>
+          </li>
+          <li class="nav-item nav-auth-guest" id="navRegisterItem">
+            <a class="nav-link nav-link-btn nav-link-register" href="register.html">Đăng ký</a>
+          </li>
+          <li class="nav-item nav-auth-user" id="navLoggedInItem" style="display:none">
+            <div class="nav-auth-logged-wrap d-flex flex-column flex-lg-row align-items-lg-center gap-2 ms-lg-2">
+              <span class="nav-greeting fw-bold" id="navGreetingText"></span>
+              <a class="nav-link nav-link-btn nav-dashboard-link" href="user-dashboard.html">Tài khoản của tôi</a>
+              <button type="button" class="btn btn-outline-cute btn-sm nav-logout-btn" id="navLogoutBtn">Đăng xuất</button>
+            </div>
           </li>
         </ul>
       </div>
@@ -147,6 +151,20 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <div class="gradient-divider"></div>
+
+  <section id="featured" class="featured-section py-5">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="section-badge">Mới cập nhật từ Ban Quản Trị</span>
+        <h2 class="section-title fw-bold mt-3">Sản phẩm nổi bật</h2>
+        <p class="section-subtitle">Những mẫu code mới nhất được thêm trực tiếp từ bảng quản trị</p>
+      </div>
+      <div class="row g-4 product-grid" id="featuredProductGrid"></div>
+      <p class="featured-empty text-center" id="featuredEmpty" style="display:none">Chưa có sản phẩm nổi bật nào. Hãy quay lại sau nhé!</p>
     </div>
   </section>
 
