@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bảng điều khiển - Dr.Gifter</title>
+  <title>Bảng điều khiển - HappyCode</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
     <aside class="admin-sidebar" id="adminSidebar">
       <div class="sidebar-header">
         <a href="index.html" class="sidebar-brand">
-          <i class="bi bi-gift-fill"></i> Dr.Gifter
+        <i class="bi bi-gift-fill"></i> HappyCode
         </a>
         <p class="sidebar-subtitle">Bảng quản trị</p>
       </div>
@@ -43,6 +43,12 @@
           <span class="sidebar-link-pill">
             <i class="bi bi-box-seam"></i>
             <span>Quản lý sản phẩm</span>
+          </span>
+        </a>
+        <a href="#deposits" class="sidebar-link" data-section="deposits">
+          <span class="sidebar-link-pill">
+            <i class="bi bi-wallet2"></i>
+            <span>Quản lý nạp tiền</span>
           </span>
         </a>
       </nav>
@@ -208,6 +214,30 @@
                   </table>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="depositsSection" class="content-section">
+          <div class="table-glass">
+            <div class="table-glass-header">
+              <h2 class="table-glass-title h6 fw-bold mb-0">Yêu cầu nạp tiền từ khách hàng</h2>
+              <span class="admin-status">Trực tiếp</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table admin-table mb-0" id="depositRequestsTable">
+                <thead>
+                  <tr>
+                    <th>Khách hàng</th>
+                    <th>Email</th>
+                    <th>Số tiền</th>
+                    <th>Mã giao dịch</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="depositRequestsTableBody"></tbody>
+              </table>
             </div>
           </div>
         </section>

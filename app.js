@@ -26,6 +26,7 @@ var STORAGE_USER_LOGIN_LOCKED = 'drgifter_user_login_locked';
 var STORAGE_ADMIN_LOGIN_FAILURES = 'drgifter_admin_login_failures';
 var STORAGE_ADMIN_LOGIN_LOCKED = 'drgifter_admin_login_locked';
 var STORAGE_CUSTOM_PRODUCTS = 'customProducts';
+var STORAGE_DEPOSIT_REQUESTS = 'depositRequests';
 var MAX_LOGIN_FAILURES = 5;
 var ADMIN_USERNAME = 'admin';
 var ADMIN_PASSWORD = 'admin123';
@@ -75,7 +76,8 @@ function getCurrentUser() {
 function setCurrentUser(user) {
   localStorage.setItem(STORAGE_CURRENT_USER, JSON.stringify({
     name: user.name,
-    email: user.email
+    email: user.email,
+    balance: user.balance || 0
   }));
   localStorage.setItem(STORAGE_LOGGED_IN, 'true');
 }
@@ -203,6 +205,18 @@ function getCustomProducts() {
 
 function saveCustomProducts(products) {
   localStorage.setItem(STORAGE_CUSTOM_PRODUCTS, JSON.stringify(products));
+}
+
+function getDepositRequests() {
+  var data = localStorage.getItem(STORAGE_DEPOSIT_REQUESTS);
+  if (!data) {
+    return [];
+  }
+  return JSON.parse(data);
+}
+
+function saveDepositRequests(requests) {
+  localStorage.setItem(STORAGE_DEPOSIT_REQUESTS, JSON.stringify(requests));
 }
 
 function deleteCustomProduct(productId) {
@@ -573,7 +587,8 @@ function initRegisterForm() {
     users.push({
       name: fullName,
       email: email,
-      password: password
+      password: password,
+      balance: 0
     });
     saveUsers(users);
 
@@ -601,12 +616,14 @@ function initAdminDashboard() {
     dashboard: 'Bảng điều khiển',
     users: 'Quản lý người dùng',
     requests: 'Yêu cầu dịch vụ',
-    products: 'Quản lý sản phẩm'
+    products: 'Quản lý sản phẩm',
+    deposits: 'Quản lý nạp tiền'
   };
 
   renderAdminDashboard();
   renderUsersTable();
   initProductManagement();
+  initDepositManagement();
 
   sidebarLinks.forEach(function (link) {
     link.addEventListener('click', function (event) {
@@ -893,6 +910,104 @@ function initProductManagement() {
   }
 }
 
+function renderDepositRequestsTable() {
+  var tableBody = document.getElementById('depositRequestsTableBody');
+  if (!tableBody) {
+    return;
+  }
+
+  var requests = getDepositRequests();
+  tableBody.innerHTML = '';
+
+  if (requests.length === 0) {
+    var emptyRow = document.createElement('tr');
+    emptyRow.innerHTML = '<td colspan="6" class="text-center empty-users-row">Chưa có yêu cầu nạp tiền nào</td>';
+    tableBody.appendChild(emptyRow);
+    return;
+  }
+
+  requests.slice().reverse().forEach(function (request) {
+    var statusClass = 'status-pending';
+    if (request.status === 'Đã duyệt') {
+      statusClass = 'status-completed';
+    }
+    if (request.status === 'Đã hủy') {
+      statusClass = 'status-progress';
+    }
+
+    var row = document.createElement('tr');
+    row.innerHTML =
+      '<td data-label="Khách hàng">' + request.clientName + '</td>' +
+      '<td data-label="Email">' + request.clientEmail + '</td>' +
+      '<td data-label="Số tiền">' + formatCurrency(request.amount) + '</td>' +
+      '<td data-label="Mã giao dịch">' + request.transactionCode + '</td>' +
+      '<td data-label="Trạng thái"><span class="status-badge ' + statusClass + '">' + request.status + '</span></td>' +
+      '<td data-label="Thao tác">' +
+        '<button type="button" class="btn btn-action btn-action-approve deposit-action-btn" data-action="approve" data-request-id="' + request.id + '">Duyệt</button>' +
+        '<button type="button" class="btn btn-action btn-action-view deposit-action-btn" data-action="cancel" data-request-id="' + request.id + '">Hủy</button>' +
+      '</td>';
+    tableBody.appendChild(row);
+  });
+}
+
+function initDepositManagement() {
+  var tableBody = document.getElementById('depositRequestsTableBody');
+  if (!tableBody) {
+    return;
+  }
+
+  renderDepositRequestsTable();
+
+  tableBody.addEventListener('click', function (event) {
+    var button = event.target.closest('.deposit-action-btn');
+    if (!button) {
+      return;
+    }
+
+    var action = button.getAttribute('data-action');
+    var requestId = button.getAttribute('data-request-id');
+    var requests = getDepositRequests();
+    var users = getUsers();
+    var currentUser = getCurrentUser();
+
+    requests.forEach(function (request) {
+      if (request.id !== requestId || request.status !== 'Chờ duyệt') {
+        return;
+      }
+
+      if (action === 'approve') {
+        request.status = 'Đã duyệt';
+        users.forEach(function (user) {
+          if (user.email.toLowerCase() === request.clientEmail.toLowerCase()) {
+            if (!user.balance) {
+              user.balance = 0;
+            }
+            user.balance = user.balance + request.amount;
+          }
+        });
+
+        if (currentUser && currentUser.email.toLowerCase() === request.clientEmail.toLowerCase()) {
+          if (!currentUser.balance) {
+            currentUser.balance = 0;
+          }
+          currentUser.balance = currentUser.balance + request.amount;
+          localStorage.setItem(STORAGE_CURRENT_USER, JSON.stringify(currentUser));
+        }
+      }
+
+      if (action === 'cancel') {
+        request.status = 'Đã hủy';
+      }
+    });
+
+    saveUsers(users);
+    saveDepositRequests(requests);
+    renderDepositRequestsTable();
+    renderAdminDashboard();
+    renderUsersTable();
+  });
+}
+
 function buildCustomProductCard(product, index) {
   var previewClasses = ['product-preview-1', 'product-preview-2', 'product-preview-3', 'product-preview-4', 'product-preview-5', 'product-preview-6'];
   var previewClass = previewClasses[index % previewClasses.length];
@@ -966,15 +1081,12 @@ function handleProductButtonClick(button) {
   }
 
   if (action === 'buy') {
-    var success = processPurchase({
+    openPurchaseConfirmModal({
       title: title,
       price: price,
       githubUrl: githubUrl,
       description: description
     });
-    if (success) {
-      showPurchaseSuccessAlert();
-    }
   }
 
   if (action === 'demo') {
@@ -1055,9 +1167,16 @@ function processPurchase(productInfo) {
     description: productInfo.description || ''
   };
 
+  var currentBalance = getCurrentUserBalance();
+  if (currentBalance < price) {
+    return false;
+  }
+
   var purchases = getPurchases();
   purchases.push(purchase);
   savePurchases(purchases);
+
+  setCurrentUserBalance(currentBalance - price);
 
   var newSpending = getTotalSpending() + price;
   setTotalSpending(newSpending);
@@ -1079,22 +1198,101 @@ function processPurchase(productInfo) {
   return true;
 }
 
-function showPurchaseSuccessAlert() {
-  alert('Đặt mua thành công! Yêu cầu của bạn đã được gửi tới Ban Quản Trị.');
-}
-
-function showPurchaseModal() {
-  var modal = document.getElementById('purchaseModal');
-  if (modal) {
-    modal.classList.add('show');
+function getCurrentUserBalance() {
+  var user = getCurrentUser();
+  if (!user || !user.balance) {
+    return 0;
   }
+  return parseInt(user.balance, 10);
 }
 
-function hidePurchaseModal() {
-  var modal = document.getElementById('purchaseModal');
+function setCurrentUserBalance(newBalance) {
+  var users = getUsers();
+  var currentUser = getCurrentUser();
+  var i;
+
+  if (currentUser) {
+    currentUser.balance = newBalance;
+    localStorage.setItem(STORAGE_CURRENT_USER, JSON.stringify(currentUser));
+  }
+
+  for (i = 0; i < users.length; i++) {
+    if (currentUser && users[i].email.toLowerCase() === currentUser.email.toLowerCase()) {
+      users[i].balance = newBalance;
+      break;
+    }
+  }
+
+  saveUsers(users);
+}
+
+function closePurchaseConfirmModal() {
+  var modal = document.getElementById('purchaseConfirmModal');
   if (modal) {
     modal.classList.remove('show');
   }
+}
+
+function openPurchaseConfirmModal(productInfo) {
+  var modal = document.getElementById('purchaseConfirmModal');
+  var titleEl = document.getElementById('purchaseConfirmTitle');
+  var textEl = document.getElementById('purchaseConfirmText');
+  var actionsEl = document.getElementById('purchaseConfirmActions');
+  var okBtn = document.getElementById('purchaseConfirmOkBtn');
+  var cancelBtn = document.getElementById('purchaseConfirmCancelBtn');
+  var balance = getCurrentUserBalance();
+  var shouldRefreshOnClose = false;
+
+  if (!modal || !titleEl || !textEl || !actionsEl || !okBtn || !cancelBtn) {
+    return;
+  }
+
+  titleEl.textContent = 'Xác nhận mua hàng nha! 💕';
+  textEl.textContent = 'Bạn đang chọn "' + productInfo.title + '" với giá ' + formatCurrency(productInfo.price) + '.';
+  actionsEl.style.display = 'flex';
+  okBtn.style.display = 'inline-block';
+  cancelBtn.style.display = 'inline-block';
+  okBtn.textContent = 'Xác nhận mua ❤️';
+  cancelBtn.textContent = 'Hủy bỏ';
+
+  if (!isUserLoggedIn()) {
+    localStorage.setItem(STORAGE_REDIRECT, getRedirectPageName());
+    alert('Vui lòng đăng nhập để mua sản phẩm!');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  if (balance < productInfo.price) {
+    titleEl.textContent = 'Ví tiền chưa đủ rồi nè ☁️';
+    textEl.textContent = 'Số dư ví không đủ rồi nè! Hãy nạp thêm tiền nhé ☁️';
+    okBtn.style.display = 'none';
+    cancelBtn.textContent = 'Đóng';
+  } else {
+    okBtn.onclick = function () {
+      var success = processPurchase(productInfo);
+      if (success) {
+        titleEl.textContent = 'Mua thành công rồi nha! 🥰💖';
+        textEl.textContent = 'Cảm ơn bạn rất nhiều! Đơn hàng của bạn đã được gửi tới Ban Quản Trị. ❤️ ☁️ 💕';
+        okBtn.style.display = 'none';
+        cancelBtn.textContent = 'Đóng';
+        shouldRefreshOnClose = true;
+      } else {
+        titleEl.textContent = 'Ví tiền chưa đủ rồi nè ☁️';
+        textEl.textContent = 'Số dư ví không đủ rồi nè! Hãy nạp thêm tiền nhé ☁️';
+        okBtn.style.display = 'none';
+        cancelBtn.textContent = 'Đóng';
+      }
+    };
+  }
+
+  cancelBtn.onclick = function () {
+    closePurchaseConfirmModal();
+    if (shouldRefreshOnClose) {
+      window.location.reload();
+    }
+  };
+
+  modal.classList.add('show');
 }
 
 function initServicesPage() {
@@ -1111,20 +1309,6 @@ function initServicesPage() {
   var currentPage = 1;
   var itemsPerPage = 3;
   var productCols = productGrid.querySelectorAll('.product-col');
-  var modalCloseBtn = document.getElementById('purchaseModalClose');
-  var purchaseModal = document.getElementById('purchaseModal');
-
-  if (modalCloseBtn) {
-    modalCloseBtn.addEventListener('click', hidePurchaseModal);
-  }
-
-  if (purchaseModal) {
-    purchaseModal.addEventListener('click', function (event) {
-      if (event.target === purchaseModal) {
-        hidePurchaseModal();
-      }
-    });
-  }
 
   function refreshProductCols() {
     productCols = productGrid.querySelectorAll('.product-col');
@@ -1247,6 +1431,8 @@ function initUserDashboard() {
   var profileName = document.getElementById('profileName');
   var profileEmail = document.getElementById('profileEmail');
   var totalSpendingDisplay = document.getElementById('totalSpendingDisplay');
+  var walletBalanceDisplay = document.getElementById('walletBalanceDisplay');
+  var depositRequestForm = document.getElementById('depositRequestForm');
   var purchaseHistoryBody = document.getElementById('purchaseHistoryBody');
   var passwordForm = document.getElementById('passwordForm');
   var logoutBtn = document.getElementById('userLogoutBtn');
@@ -1265,6 +1451,7 @@ function initUserDashboard() {
   }
 
   renderUserSpending();
+  renderWalletBalance();
   renderPurchaseHistory();
 
   if (passwordForm) {
@@ -1297,10 +1484,40 @@ function initUserDashboard() {
     });
   }
 
+  if (depositRequestForm) {
+    depositRequestForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var amount = parseInt(document.getElementById('depositAmountInput').value, 10);
+      var transactionCode = document.getElementById('depositTransactionCodeInput').value.trim();
+      var requestId = 'deposit_' + Date.now();
+      var requests = getDepositRequests();
+
+      requests.push({
+        id: requestId,
+        clientName: getUserName(),
+        clientEmail: getUserEmail(),
+        amount: amount,
+        transactionCode: transactionCode,
+        status: 'Chờ duyệt'
+      });
+
+      saveDepositRequests(requests);
+      showFormAlert(depositRequestForm, 'Gửi yêu cầu nạp tiền thành công! Bạn chờ Ban Quản Trị duyệt nhé 💕', 'success');
+      depositRequestForm.reset();
+    });
+  }
+
   function renderUserSpending() {
     if (totalSpendingDisplay) {
       totalSpendingDisplay.textContent = formatCurrency(getTotalSpending());
     }
+  }
+
+  function renderWalletBalance() {
+    if (!walletBalanceDisplay) {
+      return;
+    }
+    walletBalanceDisplay.textContent = formatCurrency(getCurrentUserBalance());
   }
 
   function renderPurchaseHistory() {

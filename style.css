@@ -1795,6 +1795,82 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-dark);
 }
 
+.wallet-balance-box {
+  background: var(--pink-pale);
+  border: 2px solid var(--pink-light);
+  border-radius: 26px;
+  padding: 1rem 1.2rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.wallet-balance-label {
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.wallet-balance-value {
+  color: var(--pink-accent);
+  font-weight: 800;
+}
+
+.purchase-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 192, 203, 0.35);
+  backdrop-filter: blur(6px);
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+}
+
+.purchase-confirm-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.purchase-confirm-card {
+  width: min(520px, 100%);
+  background: #fff;
+  border: 3px solid var(--pink-soft);
+  border-radius: 34px;
+  padding: 1.4rem;
+  box-shadow: var(--shadow-hover);
+  text-align: center;
+}
+
+.purchase-confirm-decor {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.purchase-confirm-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--pink-accent);
+  margin-bottom: 0.55rem;
+}
+
+.purchase-confirm-text {
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+}
+
+.purchase-confirm-actions {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+}
+
+.purchase-confirm-btn {
+  border-radius: 18px;
+  min-width: 155px;
+}
+
 .purchase-modal-card {
   background: var(--white);
   border: 2px solid var(--pink-light);
