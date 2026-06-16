@@ -23,6 +23,7 @@ var STORAGE_USER_LOGIN_FAILURES = 'drgifter_user_login_failures';
 var STORAGE_USER_LOGIN_LOCKED = 'drgifter_user_login_locked';
 var STORAGE_ADMIN_LOGIN_FAILURES = 'drgifter_admin_login_failures';
 var STORAGE_ADMIN_LOGIN_LOCKED = 'drgifter_admin_login_locked';
+var STORAGE_CUSTOM_PRODUCTS = 'customProducts';
 var MAX_LOGIN_FAILURES = 5;
 var ADMIN_USERNAME = 'admin';
 var ADMIN_PASSWORD = 'admin123';
@@ -174,6 +175,32 @@ function getAdminOrders() {
 
 function saveAdminOrders(orders) {
   localStorage.setItem(STORAGE_ADMIN_ORDERS, JSON.stringify(orders));
+}
+
+function getCustomProducts() {
+  var data = localStorage.getItem(STORAGE_CUSTOM_PRODUCTS);
+  if (!data) {
+    return [];
+  }
+  return JSON.parse(data);
+}
+
+function saveCustomProducts(products) {
+  localStorage.setItem(STORAGE_CUSTOM_PRODUCTS, JSON.stringify(products));
+}
+
+function deleteCustomProduct(productId) {
+  var products = getCustomProducts();
+  var filtered = [];
+  var i;
+
+  for (i = 0; i < products.length; i++) {
+    if (products[i].id !== productId) {
+      filtered.push(products[i]);
+    }
+  }
+
+  saveCustomProducts(filtered);
 }
 
 function getInitials(name) {
@@ -491,18 +518,20 @@ function initAdminDashboard() {
   var pageTitle = document.getElementById('pageTitle');
   var requestsTableBody = document.getElementById('requestsTableBody');
 
-  if (!requestsTableBody) {
+  if (!adminSidebar) {
     return;
   }
 
   var sectionTitles = {
     dashboard: 'Bảng điều khiển',
     users: 'Quản lý người dùng',
-    requests: 'Yêu cầu dịch vụ'
+    requests: 'Yêu cầu dịch vụ',
+    products: 'Quản lý sản phẩm'
   };
 
   renderAdminDashboard();
   renderUsersTable();
+  initProductManagement();
 
   sidebarLinks.forEach(function (link) {
     link.addEventListener('click', function (event) {
@@ -535,28 +564,30 @@ function initAdminDashboard() {
     });
   }
 
-  requestsTableBody.addEventListener('click', function (event) {
-    var button = event.target.closest('.action-btn');
-    if (!button) {
-      return;
-    }
+  if (requestsTableBody) {
+    requestsTableBody.addEventListener('click', function (event) {
+      var button = event.target.closest('.action-btn');
+      if (!button) {
+        return;
+      }
 
-    var action = button.getAttribute('data-action');
-    var row = button.closest('tr');
-    var orderId = row.getAttribute('data-order-id');
-    var clientName = row.querySelector('.client-cell span').textContent;
-    var statusBadge = row.querySelector('.status-badge');
+      var action = button.getAttribute('data-action');
+      var row = button.closest('tr');
+      var orderId = row.getAttribute('data-order-id');
+      var clientName = row.querySelector('.client-cell span').textContent;
+      var statusBadge = row.querySelector('.status-badge');
 
-    if (action === 'approve' && statusBadge && orderId) {
-      statusBadge.textContent = 'Hoàn thành';
-      statusBadge.className = 'status-badge status-completed';
-      updateAdminOrderStatus(orderId, 'completed');
-    }
+      if (action === 'approve' && statusBadge && orderId) {
+        statusBadge.textContent = 'Hoàn thành';
+        statusBadge.className = 'status-badge status-completed';
+        updateAdminOrderStatus(orderId, 'completed');
+      }
 
-    if (action === 'view') {
-      alert('Đang xem yêu cầu từ ' + clientName);
-    }
-  });
+      if (action === 'view') {
+        alert('Đang xem yêu cầu từ ' + clientName);
+      }
+    });
+  }
 
   function switchSection(sectionName) {
     var sections = document.querySelectorAll('.content-section');
@@ -693,6 +724,164 @@ function renderUsersTable() {
   });
 }
 
+function renderAdminProductsTable() {
+  var tableBody = document.getElementById('adminProductsTableBody');
+  if (!tableBody) {
+    return;
+  }
+
+  var products = getCustomProducts();
+  tableBody.innerHTML = '';
+
+  if (products.length === 0) {
+    var emptyRow = document.createElement('tr');
+    emptyRow.innerHTML = '<td colspan="3" class="text-center empty-users-row">Chưa có sản phẩm tùy chỉnh nào</td>';
+    tableBody.appendChild(emptyRow);
+    return;
+  }
+
+  products.forEach(function (product) {
+    var row = document.createElement('tr');
+    row.innerHTML =
+      '<td data-label="Tên sản phẩm">' + product.name + '</td>' +
+      '<td data-label="Giá">' + formatCurrency(product.price) + '</td>' +
+      '<td data-label="Hành động">' +
+        '<button type="button" class="btn btn-action btn-action-view delete-product-btn" data-product-id="' + product.id + '">Xóa</button>' +
+      '</td>';
+    tableBody.appendChild(row);
+  });
+}
+
+function initProductManagement() {
+  var addProductForm = document.getElementById('addProductForm');
+  var adminProductsTableBody = document.getElementById('adminProductsTableBody');
+
+  if (!addProductForm && !adminProductsTableBody) {
+    return;
+  }
+
+  renderAdminProductsTable();
+
+  if (addProductForm) {
+    addProductForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      var name = document.getElementById('productNameInput').value.trim();
+      var price = parseInt(document.getElementById('productPriceInput').value, 10);
+      var videoUrl = document.getElementById('productVideoUrlInput').value.trim();
+      var demoUrl = document.getElementById('productDemoUrlInput').value.trim();
+      var description = document.getElementById('productDescriptionInput').value.trim();
+
+      var products = getCustomProducts();
+      products.push({
+        id: 'custom_' + Date.now(),
+        name: name,
+        price: price,
+        videoUrl: videoUrl,
+        demoUrl: demoUrl,
+        description: description
+      });
+      saveCustomProducts(products);
+
+      showFormAlert(addProductForm, 'Thêm sản phẩm mới thành công!', 'success');
+      addProductForm.reset();
+      renderAdminProductsTable();
+    });
+  }
+
+  if (adminProductsTableBody) {
+    adminProductsTableBody.addEventListener('click', function (event) {
+      var deleteBtn = event.target.closest('.delete-product-btn');
+      if (!deleteBtn) {
+        return;
+      }
+
+      var productId = deleteBtn.getAttribute('data-product-id');
+      deleteCustomProduct(productId);
+      renderAdminProductsTable();
+    });
+  }
+}
+
+function buildCustomProductCard(product, index) {
+  var previewClasses = ['product-preview-1', 'product-preview-2', 'product-preview-3', 'product-preview-4', 'product-preview-5', 'product-preview-6'];
+  var previewClass = previewClasses[index % previewClasses.length];
+  var isFree = product.price === 0 ? 'true' : 'false';
+  var tags = product.name.toLowerCase() + ' ' + product.description.toLowerCase();
+
+  var col = document.createElement('div');
+  col.className = 'col-sm-6 col-lg-4 product-col product-col-custom';
+  col.setAttribute('data-custom', 'true');
+  col.setAttribute('data-title', product.name);
+  col.setAttribute('data-tags', tags);
+  col.setAttribute('data-free', isFree);
+  col.setAttribute('data-price', String(product.price));
+  col.setAttribute('data-video-url', product.videoUrl);
+  col.setAttribute('data-demo-url', product.demoUrl);
+
+  col.innerHTML =
+    '<article class="product-card">' +
+      '<div class="product-preview ' + previewClass + '">' +
+        '<i class="bi bi-stars"></i>' +
+      '</div>' +
+      '<h2 class="product-title">' + product.name + '</h2>' +
+      '<p class="product-desc">' + product.description + '</p>' +
+      '<div class="product-btn-group">' +
+        '<button type="button" class="btn-product btn-video" data-action="video">Video</button>' +
+        '<button type="button" class="btn-product btn-buy" data-action="buy">Mua ngay</button>' +
+        '<button type="button" class="btn-product btn-demo" data-action="demo">Xem Demo</button>' +
+      '</div>' +
+    '</article>';
+
+  return col;
+}
+
+function renderCustomProductsOnGrid(productGrid) {
+  var existingCustom = productGrid.querySelectorAll('.product-col-custom');
+  var i;
+
+  for (i = 0; i < existingCustom.length; i++) {
+    existingCustom[i].remove();
+  }
+
+  var products = getCustomProducts();
+  products.forEach(function (product, index) {
+    productGrid.appendChild(buildCustomProductCard(product, index));
+  });
+}
+
+function handleProductButtonClick(button) {
+  var card = button.closest('.product-col');
+  var title = card.getAttribute('data-title');
+  var price = parseInt(card.getAttribute('data-price'), 10);
+  var videoUrl = card.getAttribute('data-video-url');
+  var demoUrl = card.getAttribute('data-demo-url');
+  var action = button.getAttribute('data-action');
+
+  if (action === 'video') {
+    if (videoUrl) {
+      window.open(videoUrl, '_blank');
+    } else {
+      alert('Chưa có đường dẫn video cho sản phẩm này.');
+    }
+  }
+
+  if (action === 'buy') {
+    var success = processPurchase(title, price);
+    if (success) {
+      showPurchaseModal();
+    }
+  }
+
+  if (action === 'demo') {
+    if (demoUrl) {
+      window.open(demoUrl, '_blank');
+    } else {
+      alert('Chưa có đường dẫn demo cho sản phẩm này.');
+    }
+  }
+}
+
 function processPurchase(title, price) {
   if (!isUserLoggedIn()) {
     localStorage.setItem(STORAGE_REDIRECT, 'services');
@@ -754,14 +943,16 @@ function initServicesPage() {
   var productGrid = document.getElementById('productGrid');
   if (!productGrid) return;
 
+  renderCustomProductsOnGrid(productGrid);
+
   var searchInput = document.getElementById('productSearch');
   var freeToggle = document.getElementById('freeToggle');
   var noResults = document.getElementById('noResults');
   var paginationNav = document.getElementById('paginationNav');
-  var productCols = productGrid.querySelectorAll('.product-col');
   var paginationItems = paginationNav.querySelectorAll('.pagination-item');
   var currentPage = 1;
   var itemsPerPage = 3;
+  var productCols = productGrid.querySelectorAll('.product-col');
   var modalCloseBtn = document.getElementById('purchaseModalClose');
   var purchaseModal = document.getElementById('purchaseModal');
 
@@ -777,7 +968,12 @@ function initServicesPage() {
     });
   }
 
+  function refreshProductCols() {
+    productCols = productGrid.querySelectorAll('.product-col');
+  }
+
   function getFilteredProducts() {
+    refreshProductCols();
     var keyword = searchInput.value.toLowerCase().trim();
     var freeOnly = freeToggle.checked;
     var matched = [];
@@ -869,27 +1065,11 @@ function initServicesPage() {
     });
   });
 
-  var productButtons = productGrid.querySelectorAll('.btn-product');
-  productButtons.forEach(function (button) {
-    button.addEventListener('click', function () {
-      var card = button.closest('.product-col');
-      var title = card.getAttribute('data-title');
-      var price = parseInt(card.getAttribute('data-price'), 10);
-      var action = button.getAttribute('data-action');
-
-      if (action === 'video') {
-        alert('Đang mở video: ' + title);
-      }
-      if (action === 'buy') {
-        var success = processPurchase(title, price);
-        if (success) {
-          showPurchaseModal();
-        }
-      }
-      if (action === 'demo') {
-        alert('Xem demo mẫu: ' + title);
-      }
-    });
+  productGrid.addEventListener('click', function (event) {
+    var button = event.target.closest('.btn-product');
+    if (button) {
+      handleProductButtonClick(button);
+    }
   });
 
   renderProducts();
@@ -999,3 +1179,23 @@ function showFormAlert(form, message, type) {
   alertElement.textContent = message;
   form.appendChild(alertElement);
 }
+function loadRegisteredUsers() {
+  const tableBody = document.getElementById("userTableBody");
+  if (!tableBody) return;
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  tableBody.innerHTML = "";
+  if (users.length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='3' class='text-center py-4 text-muted'>Chưa có thành viên nào đăng ký</td></tr>";
+      return;
+  }
+  users.forEach(user => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+          <td class="align-middle">${user.name}</td>
+          <td class="align-middle">${user.email}</td>
+          <td class="align-middle"><span class="badge bg-white text-danger border border-1 card-accent px-3 py-2 rounded-pill">Hoạt động</span></td>
+      `;
+      tableBody.appendChild(row);
+  });
+}
+document.addEventListener("DOMContentLoaded", loadRegisteredUsers);
