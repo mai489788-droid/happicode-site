@@ -18,7 +18,8 @@ var STORAGE_USERS = 'users';
 var STORAGE_CURRENT_USER = 'currentUser';
 var STORAGE_SPENDING = 'drgifter_total_spending';
 var STORAGE_PURCHASES = 'drgifter_purchases';
-var STORAGE_ADMIN_ORDERS = 'drgifter_admin_orders';
+var STORAGE_ORDERS = 'orders';
+var STORAGE_LEGACY_ORDERS = 'drgifter_admin_orders';
 var STORAGE_USER_LOGIN_FAILURES = 'drgifter_user_login_failures';
 var STORAGE_USER_LOGIN_LOCKED = 'drgifter_user_login_locked';
 var STORAGE_ADMIN_LOGIN_FAILURES = 'drgifter_admin_login_failures';
@@ -153,28 +154,42 @@ function savePurchases(purchases) {
   localStorage.setItem(STORAGE_PURCHASES, JSON.stringify(purchases));
 }
 
-function getDefaultAdminOrders() {
-  return [
-    { id: 'seed1', clientName: 'Nguyễn Thành', serviceType: 'Phát triển Web', status: 'pending', price: 0 },
-    { id: 'seed2', clientName: 'Lê Hương', serviceType: 'Quà tặng', status: 'progress', price: 0 },
-    { id: 'seed3', clientName: 'Trần Minh', serviceType: 'Hỗ trợ bài tập', status: 'completed', price: 0 },
-    { id: 'seed4', clientName: 'Phạm Anh', serviceType: 'Phát triển Web', status: 'pending', price: 0 },
-    { id: 'seed5', clientName: 'Đỗ Linh', serviceType: 'Quà tặng', status: 'progress', price: 0 }
-  ];
+function getOrders() {
+  var data = localStorage.getItem(STORAGE_ORDERS);
+  if (data) {
+    return JSON.parse(data);
+  }
+
+  var legacyData = localStorage.getItem(STORAGE_LEGACY_ORDERS);
+  if (legacyData) {
+    var legacyOrders = JSON.parse(legacyData);
+    var realOrders = [];
+    var i;
+
+    for (i = 0; i < legacyOrders.length; i++) {
+      if (legacyOrders[i].id.indexOf('seed') !== 0) {
+        realOrders.push(legacyOrders[i]);
+      }
+    }
+
+    saveOrders(realOrders);
+    localStorage.removeItem(STORAGE_LEGACY_ORDERS);
+    return realOrders;
+  }
+
+  return [];
+}
+
+function saveOrders(orders) {
+  localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
 }
 
 function getAdminOrders() {
-  var data = localStorage.getItem(STORAGE_ADMIN_ORDERS);
-  if (!data) {
-    var defaults = getDefaultAdminOrders();
-    localStorage.setItem(STORAGE_ADMIN_ORDERS, JSON.stringify(defaults));
-    return defaults;
-  }
-  return JSON.parse(data);
+  return getOrders();
 }
 
 function saveAdminOrders(orders) {
-  localStorage.setItem(STORAGE_ADMIN_ORDERS, JSON.stringify(orders));
+  saveOrders(orders);
 }
 
 function getCustomProducts() {
@@ -621,8 +636,10 @@ function updateAdminOrderStatus(orderId, status) {
 }
 
 function renderAdminDashboard() {
-  var orders = getAdminOrders();
+  var orders = getOrders();
+  var users = getUsers();
   var tableBody = document.getElementById('requestsTableBody');
+  var totalUsersEl = document.getElementById('totalUsersMetric');
   var totalOrdersEl = document.getElementById('totalOrdersMetric');
   var revenueEl = document.getElementById('revenueMetric');
   var activeUsersEl = document.getElementById('activeUsersMetric');
@@ -631,32 +648,41 @@ function renderAdminDashboard() {
     return;
   }
 
-  var baseOrders = 89;
-  var baseRevenue = 12500000;
-  var purchaseRevenue = 0;
-  var purchaseCount = 0;
+  var totalRevenue = 0;
+  var activeNames = {};
 
   orders.forEach(function (order) {
-    if (order.id.indexOf('seed') !== 0) {
-      purchaseCount = purchaseCount + 1;
-      purchaseRevenue = purchaseRevenue + order.price;
+    totalRevenue = totalRevenue + (order.price || 0);
+    if (order.clientName) {
+      activeNames[order.clientName] = true;
     }
   });
 
-  var totalOrders = baseOrders + purchaseCount;
-  var totalRevenue = baseRevenue + purchaseRevenue;
-
-  if (totalOrdersEl) {
-    totalOrdersEl.textContent = String(totalOrders);
+  if (totalUsersEl) {
+    totalUsersEl.textContent = String(users.length);
   }
-  if (revenueEl) {
-    revenueEl.textContent = formatCurrency(totalRevenue);
+  if (totalOrdersEl) {
+    totalOrdersEl.textContent = String(orders.length);
   }
   if (activeUsersEl) {
-    activeUsersEl.textContent = String(24 + purchaseCount);
+    activeUsersEl.textContent = String(Object.keys(activeNames).length);
+  }
+  if (revenueEl) {
+    if (totalRevenue === 0) {
+      revenueEl.textContent = '0 VNĐ';
+    } else {
+      revenueEl.textContent = formatCurrency(totalRevenue);
+    }
   }
 
   tableBody.innerHTML = '';
+
+  if (orders.length === 0) {
+    var emptyRow = document.createElement('tr');
+    emptyRow.innerHTML = '<td colspan="4" class="text-center empty-users-row">Chưa có yêu cầu nào</td>';
+    tableBody.appendChild(emptyRow);
+    return;
+  }
 
   var sortedOrders = orders.slice().reverse();
 
@@ -1179,23 +1205,3 @@ function showFormAlert(form, message, type) {
   alertElement.textContent = message;
   form.appendChild(alertElement);
 }
-function loadRegisteredUsers() {
-  const tableBody = document.getElementById("userTableBody");
-  if (!tableBody) return;
-  const users = JSON.parse(localStorage.getItem("users")) || [];
-  tableBody.innerHTML = "";
-  if (users.length === 0) {
-      tableBody.innerHTML = "<tr><td colspan='3' class='text-center py-4 text-muted'>Chưa có thành viên nào đăng ký</td></tr>";
-      return;
-  }
-  users.forEach(user => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-          <td class="align-middle">${user.name}</td>
-          <td class="align-middle">${user.email}</td>
-          <td class="align-middle"><span class="badge bg-white text-danger border border-1 card-accent px-3 py-2 rounded-pill">Hoạt động</span></td>
-      `;
-      tableBody.appendChild(row);
-  });
-}
-document.addEventListener("DOMContentLoaded", loadRegisteredUsers);
